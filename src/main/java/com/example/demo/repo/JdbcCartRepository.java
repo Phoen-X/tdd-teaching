@@ -1,7 +1,9 @@
 package com.example.demo.repo;
 
 import com.example.demo.cart.Cart;
+import com.example.demo.repo.entity.CartEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +19,8 @@ public class JdbcCartRepository implements CartRepository {
     }
 
     @Override
-    public Optional<Cart> findCart(String id) {
-        return Optional.ofNullable(jdbc.queryForObject("select * from cart where id = " + id, Cart.class));
+    public Optional<CartEntity> findCart(String id) {
+        return Optional.ofNullable(jdbc.queryForObject("select * from cart where id = " + id,
+                BeanPropertyRowMapper.newInstance(CartEntity.class)));
     }
 }

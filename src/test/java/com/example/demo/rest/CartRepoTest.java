@@ -1,29 +1,29 @@
 package com.example.demo.rest;
 
-import com.example.demo.DemoApplication;
 import com.example.demo.repo.CartRepository;
+import com.example.demo.repo.entity.CartEntity;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.jdbc.Sql;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ContextConfiguration(classes = DemoApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:h2-application.properties")
-public class CartControllerDbAccessTest {
-    @Autowired
-    private MockMvc web;
+/* This annotation can be used on class (will execute before every test (!!!) in that class), ot a method (will execute before that test)
+There is class ScriptUtils in spring, which allows you to manually run a script file against some db connection (without injecting jdbc template).
+I don't know when you would want to use that though :)
+ */
+@Sql(scripts = "classpath:sql/cart.sql")
+public class CartRepoTest {
 
     @Autowired
     private CartRepository repo;
@@ -39,10 +39,10 @@ public class CartControllerDbAccessTest {
     @Test
     void cartIsSearchedInDatabase() throws Exception {
         //execute sql script
-        jdbc.execute("insert into cart(id, name) values ('13' , 'Tea')");
+        jdbc.execute("insert into cart(`id`, `name`) values ('13' , 'Tea')");
 
-        web.perform(get("/cart/13"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("id").value("13"));
+        Optional<CartEntity> cart = repo.findCart("13");
+
+        assertThat(cart).contains(new CartEntity("13", "Tea"));
     }
 }

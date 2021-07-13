@@ -1,10 +1,10 @@
 package com.example.demo.repo;
 
-import com.example.demo.cart.Cart;
+import com.example.demo.repo.entity.CartEntity;
 
 import java.util.Optional;
 
 public interface CartRepository {
 
-    Optional<Cart> findCart(String id);
+    Optional<CartEntity> findCart(String id);
 }
